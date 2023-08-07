@@ -1,8 +1,8 @@
-From python:3.7
+From python:3.8
 WORKDIR /package
 MAINTAINER Siddhant
 RUN pip3 install -r requirements.txt
 RUN pip3 install -e .
 
-CMD ["echo", "Udops installed"]
+CMD ["echo", "dzdops installed"]
 
