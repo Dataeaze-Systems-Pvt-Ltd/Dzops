@@ -7,6 +7,7 @@ class udpos_authentication:
             url = 'https://api.github.com/user'
             headers = {'Authorization': f'token {ACCESS_TOKEN}'}
             response = requests.get(url, headers=headers)
+            print(f"response_code == {response.status_code}")
             if response.status_code == 200:
                 username = response.json()['login']
                 cursor = conn.cursor(cursor_factory=RealDictCursor)
@@ -50,13 +51,18 @@ class udpos_authentication:
     def default_access(self,corpus_id,user_id,conn):
         try:
             cursor = conn.cursor()
-            
+            print(corpus_id)
+            print(user_id)
             query1 = f"select user_name from udops_users where user_id = {user_id};"
             cursor.execute(query1)
             rows = cursor.fetchone()
+            print(f"username-->{rows}")
             username = rows[0]
+
             p = 'write'
             data = user_id,username,corpus_id,p
+            print("@@@@@@@@@@@@@@")
+            print(data)
             query = f"insert into cfg_udops_acl (user_id,user_name,corpus_id,permission) values (%s,%s,%s,%s);"
             cursor.execute(query,data)
             conn.commit()

@@ -6,26 +6,22 @@ import os
 
 class DatasetRepositoryManager:
     def init(self):
-        print("!!!!!!!!!!!!!!!!!!!!!!!!!11")
         a=git.Repo.init(os.getcwd())
-        print(a)
-        # Repo.init(
-        #     ".",
-        #     force=True,
-        # )
+        Repo.init(
+            ".",
+            force=True,
+        )
 
     def get_url(self, target):
         g = git.Repo.init(os.getcwd())
-        print("urlsdetails")
-        print(g)
-        # s = Repo(os.getcwd())
-        # s.get_url(target)
 
+        s = Repo(os.getcwd())
+        s.get_url(target)
 
     def add(self, target):
-        s = Repo(os.getcwd())
-        g = git.Repo(os.getcwd())
-        s.add(
+       s = Repo(os.getcwd())
+       repo=git.Repo(os.getcwd())
+       s.add(
             targets=target,
             recursive=False,
             no_commit=False,
@@ -48,19 +44,19 @@ class DatasetRepositoryManager:
     def commit(self, message):
         g = git.Repo(os.getcwd())
         g.git.add('--all')
-        g.git.commit('-m',message)
-    
-    def clone(self,args):
-        git.Git(os.getcwd()).clone(args)
-
+        a=g.git.commit('-m',message)
     def remote(self,name:str, data: str, gita: str):
         s = Repo(os.getcwd())
         g = git.Repo(os.getcwd())
         with s.config.edit() as conf:
-            conf["core"] = {"remote":"data"}
-            conf["remote"]["data"] = {"url": str(data)+'/'+name}
+             conf["core"] = {"remote":"data"}
+             conf["remote"]["data"] = {"url": str(data)+'/'+name}
         g.create_remote('origin', str(gita))
+
         g.git.add('--all')
+    
+    def clone(self,args):
+        git.Git(os.getcwd()).clone(args)
 
     def push(self):
         s = Repo(os.getcwd())
@@ -77,13 +73,12 @@ class DatasetRepositoryManager:
         print("here")
         s = Repo(os.getcwd())
         s.fetch()
-        # s.checkout()
+        s.checkout()
         s.pull(remote="remote_store")
 
     def remote_dataset(self, name: str, args1: str, args2: str):
         s = Repo(os.getcwd())
         g = git.Repo(os.getcwd())
-
         with s.config.edit() as conf:
             conf["core"] = {"remote": "remote_store"}
             conf["remote"]["remote_store"] = {"url": str(args1) + name}
