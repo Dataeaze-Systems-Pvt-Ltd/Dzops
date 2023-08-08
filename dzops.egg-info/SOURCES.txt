@@ -1,0 +1,8 @@
+setup.py
+dzops/__init__.py
+dzops/__main__.py
+dzops.egg-info/PKG-INFO
+dzops.egg-info/SOURCES.txt
+dzops.egg-info/dependency_links.txt
+dzops.egg-info/entry_points.txt
+dzops.egg-info/top_level.txt
