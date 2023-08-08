@@ -1,0 +1,2 @@
+[console_scripts]
+dzops = dzops.__main__:app
