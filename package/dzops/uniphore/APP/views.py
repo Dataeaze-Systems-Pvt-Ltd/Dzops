@@ -38,8 +38,8 @@ class summary(APIView):
     def get(self,request):
         if request.method =='GET':
             data= json.loads(request.body)
-            corpus = udataset()
-            response=corpus.summary(data['column'])
+            dataset = udataset()
+            response=dataset.summary(data['column'])
             data = json.loads(response)
             return JsonResponse(data, safe=False)
 
@@ -49,7 +49,7 @@ class get_dataset_list(APIView):
         if request.method == 'POST':
             data= json.loads(request.body)
             re = udataset()
-            response = re.list_dataset(data["language"],data["corpus_type"],data["source_type"])
+            response = re.list_dataset(data["language"],data["dataset_type"],data["source_type"])
             
             if response==0:
                 response_data = {
@@ -114,11 +114,11 @@ class search_dataset(APIView):
         if request.method == 'POST':
             data = json.loads(request.body)
             re = udataset()
-            response = re.search_dataset(data['corpus_name'])
+            response = re.search_dataset(data['dataset_name'])
             if response==0:
                 response_data = {
                     "status": "failure",
-                    "failure_error": "corpus do not exits!!!",
+                    "failure_error": "dataset do not exits!!!",
                 }
                 return JsonResponse(response_data, safe=False)
             else:
@@ -135,9 +135,9 @@ class upsert(APIView):
             try:
 
                 data= json.loads(request.body)
-                corpus = udataset()
-                if corpus.update_dataset(data)==0 :
-                    return JsonResponse({"status":"failure","failure_error":"Corpus doesn't exist"},safe=False)
+                dataset = udataset()
+                if dataset.update_dataset(data)==0 :
+                    return JsonResponse({"status":"failure","failure_error":"dataset doesn't exist"},safe=False)
 
                 else:
                     return JsonResponse({"status":"success"},safe=False)
@@ -150,16 +150,16 @@ class donut(APIView):
     def get(self,request):
         if request.method =='GET':
             #data= json.loads(request.body)
-            data = ['language','corpus_type','source_type','vendor','domain']
-            corpus = udataset()
+            data = ['language','dataset_type','source_type','vendor','domain']
+            dataset = udataset()
             const_data = []
             i =0
             for i in range(len(data)):
-                corpus_property= data[i]
-                response=corpus.donut(corpus_property)
+                dataset_property= data[i]
+                response=dataset.donut(dataset_property)
                 key = response[0]
                 value = response[1]
-                _data = {'name': f'Per {corpus_property}','labels':key,'dataset': [{'label': ' ','data':f'{value}' }]}
+                _data = {'name': f'Per {dataset_property}','labels':key,'dataset': [{'label': ' ','data':f'{value}' }]}
                 const_data.append(_data)
                 i = i +1
             return JsonResponse(const_data,safe=False)
@@ -169,8 +169,8 @@ class summary_custom(APIView):
     def post(self,request):
         if request.method =='POST':
             data= json.loads(request.body)
-            corpus = udataset()
-            response=corpus.summary_custom(data["corpus_name"])
+            dataset = udataset()
+            response=dataset.summary_custom(data["dataset_name"])
         # print(response)
             data = json.loads(response)
             return JsonResponse(data, safe=False)
@@ -181,8 +181,8 @@ class update_custom_field(APIView):
     def post(self,request):
         if request.method == 'POST':
             data = json.loads(request.body)
-            corpus = udataset()
-            response = corpus.update_custom_field(data)
+            dataset = udataset()
+            response = dataset.update_custom_field(data)
             if response ==1:
                 return JsonResponse({"status": "updated successfully"}, safe=False)
             else:
@@ -268,39 +268,39 @@ class remove_users_team(APIView):
             else:
                 return JsonResponse({"status": "Teamname is not valid!!!!!"}, safe=False)
 
-class grant_corpus(APIView):
+class grant_dataset(APIView):
     permission_classes=([IsAuthenticated])
     def post(self,request):
         if request.method=='POST':
             data = json.loads(request.body)
             dataset = UserManagement()
-            response = dataset.grant_access_corpus(data["user_name"],data["corpus_name"],data["permission"])
+            response = dataset.grant_access_dataset(data["user_name"],data["dataset_name"],data["permission"])
             if response==1:
                 return JsonResponse({"status": "Permission granted successfully for user."}, safe=False)
             else:
                 return JsonResponse({"status": "failed"}, safe=False)
 
 
-class remove_user_corpus(APIView):
+class remove_user_dataset(APIView):
     permission_classes=([IsAuthenticated])
     def post(self,request):
         if request.method == 'POST':
             data = json.loads(request.body)
             dataset = UserManagement()
-            response = dataset.remove_access_corpus(data["user_name"],data["corpus_name"],data["permission"])
+            response = dataset.remove_access_dataset(data["user_name"],data["dataset_name"],data["permission"])
             if response==1:
                 return JsonResponse({"status": "Permission Deleted Successfully !!!"}, safe=False)
             else:
                 return JsonResponse({"status": "failed"}, safe=False)
 
 
-class grant_corpus_list_write(APIView):
+class grant_dataset_list_write(APIView):
     permission_classes=([IsAuthenticated])
     def post(self,request):
         if request.method=='POST':
             data = json.loads(request.body)
             dataset = UserManagement()
-            response = dataset.access_corpus_list_write(data["corpus_name"])
+            response = dataset.access_dataset_list_write(data["dataset_name"])
             json_string = json.dumps(response)
             data = json.loads(json_string)
             response_data = {
@@ -309,13 +309,13 @@ class grant_corpus_list_write(APIView):
             }
             return JsonResponse(response_data, safe=False)
 
-class grant_corpus_list_read(APIView):
+class grant_dataset_list_read(APIView):
     permission_classes=([IsAuthenticated])
     def post(self,request):
         if request.method=='POST':
             data = json.loads(request.body)
             dataset = UserManagement()
-            response = dataset.access_corpus_list_read(data["corpus_name"])
+            response = dataset.access_dataset_list_read(data["dataset_name"])
             json_string = json.dumps(response)
             data = json.loads(json_string)
             response_data = {

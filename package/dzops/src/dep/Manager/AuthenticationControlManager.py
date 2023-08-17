@@ -7,7 +7,7 @@ class udpos_authentication:
             url = 'https://api.github.com/user'
             headers = {'Authorization': f'token {ACCESS_TOKEN}'}
             response = requests.get(url, headers=headers)
-            print(f"response_code == {response.status_code}")
+            
             if response.status_code == 200:
                 username = response.json()['login']
                 cursor = conn.cursor(cursor_factory=RealDictCursor)
@@ -37,44 +37,43 @@ class udpos_authentication:
         except Exception as e:
             print(e)
 
-    def corpus_id(self,corpus_name,conn):
+    def dataset_id(self,dataset_name,conn):
         try:
             cursor = conn.cursor()
-            query = f"select corpus_id from corpus_metadata where corpus_name = '{corpus_name}'"
+            query = f"select dataset_id from dataset_metadata where dataset_name = '{dataset_name}'"
             cursor.execute(query)
             rows = cursor.fetchone()
             cid = rows[0]
+            
             return cid
         except Exception as e:
             print(e)
 
-    def default_access(self,corpus_id,user_id,conn):
+    def default_access(self,dataset_id,user_id,conn):
         try:
             cursor = conn.cursor()
-            print(corpus_id)
-            print(user_id)
+            
             query1 = f"select user_name from udops_users where user_id = {user_id};"
             cursor.execute(query1)
             rows = cursor.fetchone()
-            print(f"username-->{rows}")
+            
             username = rows[0]
 
             p = 'write'
-            data = user_id,username,corpus_id,p
-            print("@@@@@@@@@@@@@@")
-            print(data)
-            query = f"insert into cfg_udops_acl (user_id,user_name,corpus_id,permission) values (%s,%s,%s,%s);"
+            data = user_id,username,dataset_id,p
+        
+            query = f"insert into cfg_udops_acl (user_id,user_name,dataset_id,permission) values (%s,%s,%s,%s);"
             cursor.execute(query,data)
             conn.commit()
             cursor.close()
         except Exception as e:
             print(e)
 
-    def Corpus_team_map(self,team_id , corpus_id,conn):
+    def Dataset_team_map(self,team_id , dataset_id,conn):
         try:
             cursor = conn.cursor()
-            data = team_id,corpus_id
-            query = f"insert into cfg_udops_teams_acl (team_id,corpus_id) values (%s,%s);"
+            data = team_id,dataset_id
+            query = f"insert into cfg_udops_teams_acl (team_id,dataset_id) values (%s,%s);"
             cursor.execute(query,data)
             conn.commit()
             cursor.close()

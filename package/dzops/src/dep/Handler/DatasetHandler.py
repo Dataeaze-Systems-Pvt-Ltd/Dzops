@@ -16,10 +16,10 @@ class DatasetHandler:
         connection.create_connection( host=host, dbname=dbname, user=user, password=password)
 
 
-    def dataset_custom_fields(self,corpusname,kv_pairs):
+    def dataset_custom_fields(self,datasetname,kv_pairs):
         datasetMetadataManager = DatasetMetadataManager()
         conn = connection.get_connection()
-        datasetMetadataManager.dataset_custom_fields(corpusname, kv_pairs, conn)
+        datasetMetadataManager.dataset_custom_fields(datasetname, kv_pairs, conn)
 
     def list_commits(self):
         datasetRepositoryManager = DatasetRepositoryManager()
@@ -39,29 +39,29 @@ class DatasetHandler:
              answer = datasetMetadataManager.list_dataset_names(filter_value, conn)
   #           print(answer)
              if answer == []:
-                 raise Exception("No corpus belongs to this filter  exist")
+                 raise Exception("No dataset belongs to this filter  exist")
              for names in answer:
-                 print(names['corpus_name'])
+                 print(names['dataset_name'])
              return answer
          except Exception as e:
              raise e
 
-    def get_dataset_metadata(self, corpus_name):
+    def get_dataset_metadata(self, dataset_name):
         try:
             datasetMetadataManager = DatasetMetadataManager()
             
-            row1 = datasetMetadataManager.get_dataset_metadata_by_id(corpus_name, conn)
+            row1 = datasetMetadataManager.get_dataset_metadata_by_id(dataset_name, conn)
             if row1 ==[]:
-                raise Exception("ENter valid corpus name")
+                raise Exception("ENter valid dataset name")
             output=""
             str1={}
             
             for row in row1:
                 output={
-                        "corpus_id":row['corpus_id'],
-                        "corpus_name":row['corpus_name'],
+                        "dataset_id":row['dataset_id'],
+                        "dataset_name":row['dataset_name'],
                         "language":row['language'],
-                        "corpus_type":row['corpus_type'],
+                        "dataset_type":row['dataset_type'],
                         "source_type":row['source_type'],
                         "customer_name":row['customer_name'],
                         "data_domain_name":row['data_domain_name']
@@ -71,10 +71,10 @@ class DatasetHandler:
         except Exception as e:
             raise e
      
-    def delete_dataset(self, corpus_name):
+    def delete_dataset(self, dataset_name):
         try:
             datasetMetadataManager = DatasetMetadataManager()
-            datasetMetadataManager.delete_dataset(corpus_name,conn)
+            datasetMetadataManager.delete_dataset(dataset_name,conn)
             datasetRepositoryManager = DatasetRepositoryManager()
             datasetRepositoryManager.destroy()
         except Exception as e:
@@ -90,20 +90,20 @@ class DatasetHandler:
         except Exception as e:
             raise e
 
-    def manager_get_metadata_type(self, corpus_type):
+    def manager_get_metadata_type(self, dataset_type):
         try:
             datasetMetadataManager = DatasetMetadataManager()
-            rows = datasetMetadataManager.get_dataset_metadata_by_type(corpus_type, conn)
+            rows = datasetMetadataManager.get_dataset_metadata_by_type(dataset_type, conn)
             if rows ==[]:
-                raise Exception("ENter valid corpus name")
+                raise Exception("ENter valid dataset name")
             output=""
             # str1={}
             for row in rows:
                 output={
-                    "corpus_id":row['corpus_id'],
-                    "corpus_name":row['corpus_name'],
+                    "dataset_id":row['dataset_id'],
+                    "dataset_name":row['dataset_name'],
                     "language":row['language'],
-                    "corpus_type":row['corpus_type'],
+                    "dataset_type":row['dataset_type'],
                     "source_type":row['source_type'],
                     "customer_name":row['customer_name'],
                     "data_domain_name":row['data_domain_name']
@@ -130,7 +130,7 @@ class DatasetHandler:
     def add_repo(self, target):
         try:
             datasetRepositoryManager1 = DatasetRepositoryManager()
-            datasetRepositoryManager1.add(target)
+            datasetRepositoryManager1.add_(target)
         except Exception as e:
             raise e
 
@@ -157,7 +157,7 @@ class DatasetHandler:
         except Exception as e:
             raise e
 
-    def datareader(self, corpus_name, schema_type, custom_schema):
+    def datareader(self, dataset_name, schema_type, custom_schema):
         try:
             DatasetDataReaderManager1 = DatasetDataReaderManager()
             path = os.getcwd()
@@ -165,18 +165,18 @@ class DatasetHandler:
             output = {"template_file_path": [],"data_dir_path":[], "common_schema": [], "native_schema": []}
             conn = connection.get_connection()
             cursor = conn.cursor(cursor_factory=RealDictCursor)
-            cursor.execute("select * from corpus_metadata where corpus_name='" + corpus_name + "'")
+            cursor.execute("select * from dataset_metadata where dataset_name='" + dataset_name + "'")
             row = cursor.fetchone()
-            cursor.execute("select * from corpus_custom_fields where corpus_id='" + str(row["corpus_id"]) + "'")
+            cursor.execute("select * from dataset_custom_fields where dataset_id='" + str(row["dataset_id"]) + "'")
             result = cursor.fetchall()
-            response=prop.input_properties(path,corpus_name,output,result)
+            response=prop.input_properties(path,dataset_name,output,result)
             
-            dataset = DatasetDataReaderManager1.read_data(corpus_name,response, schema_type, custom_schema=custom_schema)['data']
+            dataset = DatasetDataReaderManager1.read_data(dataset_name,response, schema_type, custom_schema=custom_schema)['data']
             return dataset
         except Exception as e:
             raise e
 
-    def store_data(self, corpus_name, output_loc, schema_type, custom_schema=None):
+    def store_data(self, dataset_name, output_loc, schema_type, custom_schema=None):
         try:
             DatasetDataReaderManager1 = DatasetDataReaderManager()
             DatasetDataReaderManager1 = DatasetDataReaderManager()
@@ -186,23 +186,23 @@ class DatasetHandler:
             conn = connection.get_connection()
     
             cursor = conn.cursor(cursor_factory=RealDictCursor)
-            cursor.execute("select * from corpus_metadata where corpus_name='" + corpus_name + "'")
+            cursor.execute("select * from dataset_metadata where dataset_name='" + dataset_name + "'")
             row = cursor.fetchone()
-            cursor.execute("select * from corpus_custom_fields where corpus_id='" + str(row["corpus_id"]) + "'")
+            cursor.execute("select * from dataset_custom_fields where dataset_id='" + str(row["dataset_id"]) + "'")
             result = cursor.fetchall()
-            response=prop.input_properties(path,corpus_name,output,result)
+            response=prop.input_properties(path,dataset_name,output,result)
 
             if output_loc == ".":
                 output_loc = os.getcwd()
 
             if schema_type == "custom":
                 if custom_schema is not None:
-                    dataset = DatasetDataReaderManager1.store_data(corpus_name,response, output_loc, schema_type, custom_schema)
+                    dataset = DatasetDataReaderManager1.store_data(dataset_name,response, output_loc, schema_type, custom_schema)
                 else:
                     return ("invalid custom_schema path")
             else:
                # print("&&&&&&&&&&&&&&&&&&",response,output_loc,schema_type)
-                dataset = DatasetDataReaderManager1.store_data(corpus_name,response, output_loc, schema_type)
+                dataset = DatasetDataReaderManager1.store_data(dataset_name,response, output_loc, schema_type)
 
             return dataset
         except Exception as e:
@@ -215,7 +215,7 @@ class DatasetHandler:
             datasetRepositoryManager1.push()
             datasetMetadataManager = DatasetMetadataManager()
             # print("xvz")
-            # corpusMetadataManager.update_timestamp(conn,args)
+            # datasetMetadataManager.update_timestamp(conn,args)
         except Exception as e:
             raise e
 
@@ -237,10 +237,10 @@ class DatasetHandler:
         datasetMetadataManager = DatasetMetadataManager()
         return datasetMetadataManager.summary(conn, column)
 
-    def list_corpus(self , language , corpus_type ,  source_type):
+    def list_dataset(self , language , dataset_type ,  source_type):
         try:
             datasetMetadataManager = DatasetMetadataManager()
-            return datasetMetadataManager.list_corpus(language , corpus_type ,  source_type, conn)
+            return datasetMetadataManager.list_dataset(language , dataset_type ,  source_type, conn)
         except Exception as e:
             raise e
         
@@ -252,17 +252,17 @@ class DatasetHandler:
         datasetMetadataManager = DatasetMetadataManager()
         return datasetMetadataManager.source_type(conn)
     
-    def corpus_type(self,conn):
+    def dataset_type(self,conn):
         datasetMetadataManager = DatasetMetadataManager()
         return datasetMetadataManager.dataset_type(conn)
 
-    def search_corpus(self, corpus_name):
+    def search_dataset(self, dataset_name):
         try:
             datasetMetadataManager = DatasetMetadataManager()
-            if datasetMetadataManager.search_dataset(corpus_name, conn) == 0:
+            if datasetMetadataManager.search_dataset(dataset_name, conn) == 0:
                 return 0
             else:
-                return datasetMetadataManager.search_corpus(corpus_name, conn)
+                return datasetMetadataManager.search_dataset(dataset_name, conn)
         except Exception as e:
             raise e
 
@@ -270,9 +270,9 @@ class DatasetHandler:
         datasetMetadataManager = DatasetMetadataManager()
         return datasetMetadataManager.donut(conn, column)
 
-    def summary_custom(self, corpus_name):
+    def summary_custom(self, dataset_name):
         datasetMetadataManager = DatasetMetadataManager()
-        return datasetMetadataManager.summary_cutom(conn, corpus_name)
+        return datasetMetadataManager.summary_cutom(conn, dataset_name)
 
     def update_custom_field(self, data):
         datasetMetadataManager = DatasetMetadataManager()

@@ -5,7 +5,7 @@ from typing import Optional
 import typer
 
 class udataset:
-    def listCorpusNames(filter_value):
+    def listDatasetNames(filter_value):
   #      typer.echo("load test")
 #        print(filter_value)
         dataset_handler = DatasetHandler()
@@ -14,15 +14,15 @@ class udataset:
         #    print("Result :", row)
 
 
-    def getCorpusMetadata(corpus_name):  # take one argument
+    def getDatasetMetadata(dataset_name):  # take one argument
         dataset_handler = DatasetHandler()
-        row=dataset_handler.get_dataset_metadata(corpus_name)
+        row=dataset_handler.get_dataset_metadata(dataset_name)
         print(row)
         return row
 
-    def getCorpusMetadatabytype(corpus_type: str):
+    def getDatasetMetadatabytype(dataset_type: str):
         dataset_handler = DatasetHandler()
-        row = dataset_handler.manager_get_metadata_type(corpus_type)
+        row = dataset_handler.manager_get_metadata_type(dataset_type)
   #      print(row)
         return row
         
@@ -31,9 +31,9 @@ class udataset:
         dataset_handler = DatasetHandler()
         dataset_handler.RDSConfig(host = host , dbname = dbname , user = user , password = password)
 
-    def dataset_custom_fields(corpusname , kv_pairs):
+    def dataset_custom_fields(datasetname , kv_pairs):
         dataset_handler = DatasetHandler()
-        dataset_handler.dataset_custom_fields(corpusname , kv_pairs)
+        dataset_handler.dataset_custom_fields(datasetname , kv_pairs)
      
     def list_dataset(self):
         dataset_handler = DatasetHandler()
@@ -43,9 +43,9 @@ class udataset:
         dataset_handler = DatasetHandler()
         dataset_handler.checkout(commitid)
 
-    def delete_dataset(corpusname):
+    def delete_dataset(datasetname):
         dataset_handler = DatasetHandler()
-        dataset_handler.delete_corpus(corpusname)
+        dataset_handler.delete_dataset(datasetname)
 
     def init(file,target):
         dataset_handler = DatasetHandler()
@@ -83,18 +83,18 @@ class udataset:
         dataset_handler.pull_repo(audio)
 
 
-    # def update_corpus(self,file: str):
-    #     corpus_handler = CorpusHandler()
-    #     corpus_properties = json.load(open(file, 'r', encoding='utf-8'))
-    #     str1 = corpus_handler.manager_update_corpus(corpus_properties)
+    # def update_dataset(self,file: str):
+    #     dataset_handler = DatasetHandler()
+    #     dataset_properties = json.load(open(file, 'r', encoding='utf-8'))
+    #     str1 = dataset_handler.manager_update_dataset(dataset_properties)
 
-    def datareader(corpus_details_dict, schema_type : Optional[str] =typer.Argument("common"),custom_schema:Optional[str] =typer.Argument(None)):
+    def datareader(dataset_details_dict, schema_type : Optional[str] =typer.Argument("common"),custom_schema:Optional[str] =typer.Argument(None)):
         dataset_handler = DatasetHandler()
-        dataset_handler.datareader(corpus_details_dict, schema_type,custom_schema)
+        dataset_handler.datareader(dataset_details_dict, schema_type,custom_schema)
     
-    def store_data(corpus_details_dict, output_loc, schema_type : Optional[str] =typer.Argument("common"), custom_schema:Optional[str] =typer.Argument(None) ):
+    def store_data(dataset_details_dict, output_loc, schema_type : Optional[str] =typer.Argument("common"), custom_schema:Optional[str] =typer.Argument(None) ):
         dataset_handler = DatasetHandler()
-        dataset_handler.store_data(corpus_details_dict,output_loc,schema_type,custom_schema)
+        dataset_handler.store_data(dataset_details_dict,output_loc,schema_type,custom_schema)
 
     def get_Counts(self):
         dataset_handler = DatasetHandler()
@@ -104,9 +104,9 @@ class udataset:
         dataset_handler = DatasetHandler()
         return dataset_handler.summary(column)
 
-    def list_dataset(self,language , corpus_type ,  source_type):
+    def list_dataset(self,language , dataset_type ,  source_type):
         dataset_handler = DatasetHandler()
-        return dataset_handler.list_dataset(language , corpus_type ,  source_type)
+        return dataset_handler.list_dataset(language , dataset_type ,  source_type)
     
 
     def language(self):
@@ -121,12 +121,12 @@ class udataset:
         dataset_handler = DatasetHandler()
         return dataset_handler.dataset_type(conn)
 
-    def search_dataset(self, corpus_name):
+    def search_dataset(self, dataset_name):
         dataset_handler = DatasetHandler()
-        if dataset_handler.search_dataset(corpus_name) == 0:
+        if dataset_handler.search_dataset(dataset_name) == 0:
             return 0
         else:
-            return dataset_handler.search_dataset(corpus_name)
+            return dataset_handler.search_dataset(dataset_name)
 
     def update_dataset(self, data):
         dataset_handler = DatasetHandler()
@@ -139,9 +139,9 @@ class udataset:
         dataset_handler = DatasetHandler()
         return dataset_handler.donut(column)
 
-    def summary_custom(self, corpus_name):
+    def summary_custom(self, dataset_name):
         dataset_handler = DatasetHandler()
-        return dataset_handler.summary_custom(corpus_name)
+        return dataset_handler.summary_custom(dataset_name)
 
     def update_custom_field(self, data):
         dataset_handler = DatasetHandler()

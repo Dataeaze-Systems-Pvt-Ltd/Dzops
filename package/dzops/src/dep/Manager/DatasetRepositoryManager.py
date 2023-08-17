@@ -6,7 +6,7 @@ import os
 
 class DatasetRepositoryManager:
     def init(self):
-        a=git.Repo.init(os.getcwd())
+        git.Repo.init(os.getcwd())
         Repo.init(
             ".",
             force=True,
@@ -18,14 +18,14 @@ class DatasetRepositoryManager:
         s = Repo(os.getcwd())
         s.get_url(target)
 
-    def add(self, target):
+    def add_(self, target):
        s = Repo(os.getcwd())
-       repo=git.Repo(os.getcwd())
+       g = git.Repo(os.getcwd())
        s.add(
             targets=target,
-            recursive=False,
+            # recursive=False,
             no_commit=False,
-            fname=None,
+            # fname=None,
             to_remote=False,
         )
     
@@ -44,7 +44,7 @@ class DatasetRepositoryManager:
     def commit(self, message):
         g = git.Repo(os.getcwd())
         g.git.add('--all')
-        a=g.git.commit('-m',message)
+        g.git.commit('-m',message)
     def remote(self,name:str, data: str, gita: str):
         s = Repo(os.getcwd())
         g = git.Repo(os.getcwd())
@@ -73,7 +73,7 @@ class DatasetRepositoryManager:
         print("here")
         s = Repo(os.getcwd())
         s.fetch()
-        s.checkout()
+        # s.checkout()
         s.pull(remote="remote_store")
 
     def remote_dataset(self, name: str, args1: str, args2: str):

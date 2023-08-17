@@ -155,14 +155,14 @@ class UserManagementManager:
         except Exception as e:
             raise e
 
-    def grant_access_corpus(self, user_name, corpus_name, permission):
+    def grant_access_dataset(self, user_name, dataset_name, permission):
         try:
             conn = connection.get_connection()
             cursor = conn.cursor(cursor_factory=RealDictCursor)
-            # Get the corpus_id based on the corpus_name
-            cursor.execute("SELECT corpus_id FROM corpus_metadata WHERE corpus_name = %s;", [corpus_name])
-            corpus = cursor.fetchone()
-            corpus_id = corpus['corpus_id']
+            # Get the dataset_id based on the dataset_name
+            cursor.execute("SELECT dataset_id FROM dataset_metadata WHERE dataset_name = %s;", [dataset_name])
+            dataset = cursor.fetchone()
+            dataset_id = dataset['dataset_id']
 
         
 
@@ -172,16 +172,16 @@ class UserManagementManager:
                 user = cursor.fetchone()
                 user_id = user['user_id']
 
-                # Check if the user and corpus already have a permission record in cfg_udops_acl
-                cursor.execute("SELECT * FROM cfg_udops_acl WHERE user_name = %s AND corpus_id = %s;", [user_names, corpus_id])
+                # Check if the user and dataset already have a permission record in cfg_udops_acl
+                cursor.execute("SELECT * FROM cfg_udops_acl WHERE user_name = %s AND dataset_id = %s;", [user_names, dataset_id])
                 existing_permission = cursor.fetchone()
 
                 if existing_permission is None:
                     # Insert a new permission record
-                    cursor.execute("INSERT INTO cfg_udops_acl (user_id, user_name, corpus_id, permission) VALUES (%s, %s, %s, %s);",[user_id, user_names, corpus_id, permission])
+                    cursor.execute("INSERT INTO cfg_udops_acl (user_id, user_name, dataset_id, permission) VALUES (%s, %s, %s, %s);",[user_id, user_names, dataset_id, permission])
                 else:
                     # Update the existing permission
-                    cursor.execute("UPDATE cfg_udops_acl SET permission = %s WHERE user_name = %s AND corpus_id = %s;",[permission, user_names, corpus_id])
+                    cursor.execute("UPDATE cfg_udops_acl SET permission = %s WHERE user_name = %s AND dataset_id = %s;",[permission, user_names, dataset_id])
 
             conn.commit()
             cursor.close()
@@ -193,20 +193,20 @@ class UserManagementManager:
         except Exception as e:
             print(e)
 
-    def remove_access_corpus(self, user_name, corpus_name, permission):
+    def remove_access_dataset(self, user_name, dataset_name, permission):
         try:
             conn = connection.get_connection()
             cursor = conn.cursor(cursor_factory=RealDictCursor)
-            # query = f"DELETE FROM cfg_udops_acl WHERE permission = '{permission}', user_name = '{user_name}' AND corpus_id = (SELECT corpus_id FROM corpus_metadata WHERE corpus_name = '{corpus_name}')"
+            # query = f"DELETE FROM cfg_udops_acl WHERE permission = '{permission}', user_name = '{user_name}' AND dataset_id = (SELECT dataset_id FROM dataset_metadata WHERE dataset_name = '{dataset_name}')"
             user_names_str = ", ".join([f"'{name}'" for name in user_name])
 
             # Construct the SQL query using f-strings
             query = f"""
             DELETE FROM cfg_udops_acl
-                WHERE permission = '{permission}'AND corpus_id = (
-                SELECT corpus_id
-                FROM corpus_metadata
-                WHERE corpus_name = '{corpus_name}'
+                WHERE permission = '{permission}'AND dataset_id = (
+                SELECT dataset_id
+                FROM dataset_metadata
+                WHERE dataset_name = '{dataset_name}'
             )
             AND user_name IN ({user_names_str});
             """
@@ -220,17 +220,17 @@ class UserManagementManager:
         except Exception as e:
             raise e
 
-    def access_corpus_list_write(self, conn, corpus_name):
+    def access_dataset_list_write(self, conn, dataset_name):
         try:
 
             cursor = conn.cursor(cursor_factory=RealDictCursor)
 
             query = f'''SELECT user_name
                         FROM cfg_udops_acl
-                        WHERE corpus_id IN (
-                            SELECT corpus_id
-                            FROM corpus_metadata
-                            WHERE corpus_name = '{corpus_name}'
+                        WHERE dataset_id IN (
+                            SELECT dataset_id
+                            FROM dataset_metadata
+                            WHERE dataset_name = '{dataset_name}'
                         )
                         AND permission = 'write';
                     '''
@@ -243,17 +243,17 @@ class UserManagementManager:
         except Exception as e:
             print(e)
 
-    def access_corpus_list_read(self, conn, corpus_name):
+    def access_dataset_list_read(self, conn, dataset_name):
         try:
 
             cursor = conn.cursor(cursor_factory=RealDictCursor)
 
             query = f'''SELECT user_name
                         FROM cfg_udops_acl
-                        WHERE corpus_id IN (
-                            SELECT corpus_id
-                            FROM corpus_metadata
-                            WHERE corpus_name = '{corpus_name}'
+                        WHERE dataset_id IN (
+                            SELECT dataset_id
+                            FROM dataset_metadata
+                            WHERE dataset_name = '{dataset_name}'
                         )
                         AND permission = 'read';
                     '''
@@ -286,17 +286,17 @@ class UserManagementManager:
                 accessible_teams = []
 
                 for teamname in teamnames:
-                    # Fetch all the corpus_ids associated with the teamname
-                    corpus_query = f"SELECT DISTINCT corpus_id FROM cfg_udops_teams_acl WHERE team_id = (SELECT team_id FROM cfg_udops_teams_metadata WHERE teamname = '{teamname}')"
-                    cursor.execute(corpus_query)
-                    corpus_ids = cursor.fetchall()
+                    # Fetch all the dataset_ids associated with the teamname
+                    dataset_query = f"SELECT DISTINCT dataset_id FROM cfg_udops_teams_acl WHERE team_id = (SELECT team_id FROM cfg_udops_teams_metadata WHERE teamname = '{teamname}')"
+                    cursor.execute(dataset_query)
+                    dataset_ids = cursor.fetchall()
 
-                    # Check if the user_name has permission for all the corpus_ids
-                    acl_query = f"SELECT COUNT(*) FROM cfg_udops_acl WHERE user_name = '{user_name}' AND corpus_id = ANY(%s) AND permission = 'read'"
-                    cursor.execute(acl_query, (corpus_ids,))
-                    num_corpuses = cursor.fetchone()[0]
+                    # Check if the user_name has permission for all the dataset_ids
+                    acl_query = f"SELECT COUNT(*) FROM cfg_udops_acl WHERE user_name = '{user_name}' AND dataset_id = ANY(%s) AND permission = 'read'"
+                    cursor.execute(acl_query, (dataset_ids,))
+                    num_datasetes = cursor.fetchone()[0]
 
-                    if num_corpuses == len(corpus_ids):
+                    if num_datasetes == len(dataset_ids):
                         accessible_teams.append(teamname)
 
             conn.commit()
@@ -326,17 +326,17 @@ class UserManagementManager:
                 accessible_teams = []
 
                 for teamname in teamnames:
-                    # Fetch all the corpus_ids associated with the teamname
-                    corpus_query = f"SELECT DISTINCT corpus_id FROM cfg_udops_teams_acl WHERE team_id = (SELECT team_id FROM cfg_udops_teams_metadata WHERE teamname = '{teamname}')"
-                    cursor.execute(corpus_query)
-                    corpus_ids = cursor.fetchall()
+                    # Fetch all the dataset_ids associated with the teamname
+                    dataset_query = f"SELECT DISTINCT dataset_id FROM cfg_udops_teams_acl WHERE team_id = (SELECT team_id FROM cfg_udops_teams_metadata WHERE teamname = '{teamname}')"
+                    cursor.execute(dataset_query)
+                    dataset_ids = cursor.fetchall()
 
-                    # Check if the user_name has permission for all the corpus_ids
-                    acl_query = f"SELECT COUNT(*) FROM cfg_udops_acl WHERE user_name = '{user_name}' AND corpus_id = ANY(%s) AND permission ='write'"
-                    cursor.execute(acl_query, (corpus_ids,))
-                    num_corpuses = cursor.fetchone()[0]
+                    # Check if the user_name has permission for all the dataset_ids
+                    acl_query = f"SELECT COUNT(*) FROM cfg_udops_acl WHERE user_name = '{user_name}' AND dataset_id = ANY(%s) AND permission ='write'"
+                    cursor.execute(acl_query, (dataset_ids,))
+                    num_datasetes = cursor.fetchone()[0]
 
-                    if num_corpuses == len(corpus_ids):
+                    if num_datasetes == len(dataset_ids):
                         accessible_teams.append(teamname)
 
             conn.commit()
@@ -375,26 +375,26 @@ class UserManagementManager:
                         if not team_id:
                             return 2
 
-                        # Get the corpus_id values associated with the team
-                        corpus_query = f"SELECT corpus_id FROM cfg_udops_teams_acl WHERE team_id = %s"
-                        cursor.execute(corpus_query, (team_id[0],))
-                        corpus_ids = cursor.fetchall()
+                        # Get the dataset_id values associated with the team
+                        dataset_query = f"SELECT dataset_id FROM cfg_udops_teams_acl WHERE team_id = %s"
+                        cursor.execute(dataset_query, (team_id[0],))
+                        dataset_ids = cursor.fetchall()
 
                         # Insert or update records in cfg_udops_acl table
-                        for corpus_id in corpus_ids:
+                        for dataset_id in dataset_ids:
                             # Check if the entry already exists in cfg_udops_acl
-                            existing_query = f"SELECT COUNT(*) FROM cfg_udops_acl WHERE user_name = %s AND corpus_id = %s"
-                            cursor.execute(existing_query, (user_name, corpus_id[0]))
+                            existing_query = f"SELECT COUNT(*) FROM cfg_udops_acl WHERE user_name = %s AND dataset_id = %s"
+                            cursor.execute(existing_query, (user_name, dataset_id[0]))
                             existing_entry = cursor.fetchone()
 
                             if existing_entry[0]:
                                 # Update the permission for the existing entry
-                                update_query = f"UPDATE cfg_udops_acl SET permission = %s WHERE user_name = %s AND corpus_id = %s"
-                                cursor.execute(update_query, (permission, user_name, corpus_id[0]))
+                                update_query = f"UPDATE cfg_udops_acl SET permission = %s WHERE user_name = %s AND dataset_id = %s"
+                                cursor.execute(update_query, (permission, user_name, dataset_id[0]))
                             else:
                                 # Insert a new record
-                                insert_query = f"INSERT INTO cfg_udops_acl (user_name, corpus_id, permission) VALUES (%s, %s, %s)"
-                                cursor.execute(insert_query, (user_name, corpus_id[0], permission))
+                                insert_query = f"INSERT INTO cfg_udops_acl (user_name, dataset_id, permission) VALUES (%s, %s, %s)"
+                                cursor.execute(insert_query, (user_name, dataset_id[0], permission))
 
             conn.commit()
             cursor.close()
@@ -432,26 +432,26 @@ class UserManagementManager:
                         if not team_id:
                             return 2
 
-                        # Get the corpus_id values associated with the team
-                        corpus_query = f"SELECT corpus_id FROM cfg_udops_teams_acl WHERE team_id = %s"
-                        cursor.execute(corpus_query, (team_id[0],))
-                        corpus_ids = cursor.fetchall()
+                        # Get the dataset_id values associated with the team
+                        dataset_query = f"SELECT dataset_id FROM cfg_udops_teams_acl WHERE team_id = %s"
+                        cursor.execute(dataset_query, (team_id[0],))
+                        dataset_ids = cursor.fetchall()
 
                         # Insert or update records in cfg_udops_acl table
-                        for corpus_id in corpus_ids:
+                        for dataset_id in dataset_ids:
                             # Check if the entry already exists in cfg_udops_acl
-                            existing_query = f"SELECT COUNT(*) FROM cfg_udops_acl WHERE user_name = %s AND corpus_id = %s"
-                            cursor.execute(existing_query, (user_name, corpus_id[0]))
+                            existing_query = f"SELECT COUNT(*) FROM cfg_udops_acl WHERE user_name = %s AND dataset_id = %s"
+                            cursor.execute(existing_query, (user_name, dataset_id[0]))
                             existing_entry = cursor.fetchone()
 
                             if existing_entry[0]:
                                 # Update the permission for the existing entry
-                                update_query = f"UPDATE cfg_udops_acl SET permission = %s WHERE user_name = %s AND corpus_id = %s"
-                                cursor.execute(update_query, (permission, user_name, corpus_id[0]))
+                                update_query = f"UPDATE cfg_udops_acl SET permission = %s WHERE user_name = %s AND dataset_id = %s"
+                                cursor.execute(update_query, (permission, user_name, dataset_id[0]))
                             else:
                                 # Insert a new record
-                                insert_query = f"INSERT INTO cfg_udops_acl (user_name, corpus_id, permission) VALUES (%s, %s, %s)"
-                                cursor.execute(insert_query, (user_name, corpus_id[0], permission))
+                                insert_query = f"INSERT INTO cfg_udops_acl (user_name, dataset_id, permission) VALUES (%s, %s, %s)"
+                                cursor.execute(insert_query, (user_name, dataset_id[0], permission))
 
             conn.commit()
             cursor.close()

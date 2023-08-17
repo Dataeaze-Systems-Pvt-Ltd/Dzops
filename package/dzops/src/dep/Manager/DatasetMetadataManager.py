@@ -66,27 +66,27 @@ class DatasetMetadataManager:
                     cursor.close()
                     return rows
                 else:
-                    return Constants.corpus_error
+                    return Constants.dataset_error
         except Exception as e:
             print(e)
 
-    def get_dataset_metadata_by_id(self, corpus_id, conn):
+    def get_dataset_metadata_by_id(self, dataset_id, conn):
         try:
-            print(corpus_id)
+            print(dataset_id)
             cursor = conn.cursor(cursor_factory=RealDictCursor)
             cursor.execute(
-                Constants.query_metadta + corpus_id + "'")
+                Constants.query_metadta + dataset_id + "'")
             rows = cursor.fetchone()
-            cursor.execute(Constants.query_metadta + corpus_id + "'")
-            rows1 = cursor.fetchall()  # for corpus_custom_field
+            cursor.execute(Constants.query_metadta + dataset_id + "'")
+            rows1 = cursor.fetchall()  # for dataset_custom_field
             return rows1
         except Exception as e:
             print(e)
 
-    def get_dataset_metadata_by_type(self, corpus_type, conn):
+    def get_dataset_metadata_by_type(self, dataset_type, conn):
         try:
             cursor = conn.cursor(cursor_factory=RealDictCursor)
-            cursor.execute(Constants.metadata_select_query_type + corpus_type + "'")
+            cursor.execute(Constants.metadata_select_query_type + dataset_type + "'")
             rows = cursor.fetchall()
             conn.commit()
             #conn.close()
@@ -115,7 +115,7 @@ class DatasetMetadataManager:
                     for condition_list in mydict:
                         if len(condition_list) == 3:
                             cursor.execute(
-                                "select * from corpus_metadata where corpus_type='" + condition_list[0] + "' AND " +
+                                "select * from dataset_metadata where dataset_type='" + condition_list[0] + "' AND " +
                                 condition_list[1] + "='" + condition_list[2] + "'")
                             rows = cursor.fetchall()
                             final_resp.extend(rows)
@@ -135,14 +135,14 @@ class DatasetMetadataManager:
             cursor = conn.cursor(cursor_factory=RealDictCursor)
             cursor.execute(Constants.create_metadata_table)
             cursor.execute(Constants.create_custom_table)
-            data = json_loader["corpus_name"], json_loader["corpus_type"], json_loader["language"], json_loader[
+            data = json_loader["dataset_name"], json_loader["dataset_type"], json_loader["language"], json_loader[
                 "source_type"], \
                    json_loader["vendor"], json_loader["domain"],json_loader["description"],json_loader["lang_code"],json_loader["acquisition_date"], json_loader["migration_date"]
 
             cursor.execute(
                 Constants.insert_query_metadata,
                 data)
-            cursor.execute(Constants.query_metadata + json_loader["corpus_name"] + "'")
+            cursor.execute(Constants.query_metadata + json_loader["dataset_name"] + "'")
             print("success")
             conn.commit()
             cursor.close()
@@ -153,9 +153,9 @@ class DatasetMetadataManager:
     def update_dataset(self,json_loader, conn):
         try:
             cursor = conn.cursor(cursor_factory=RealDictCursor)
-            corpus_name = json_loader["corpus_name"]
-#           cursor.execute(Constants.query_metadata + json_loader["corpus_name"] + "'")
-            query = f"select * from corpus_metadata where corpus_name='{corpus_name}'"
+            dataset_name = json_loader["dataset_name"]
+#           cursor.execute(Constants.query_metadata + json_loader["dataset_name"] + "'")
+            query = f"select * from dataset_metadata where dataset_name='{dataset_name}'"
             cursor.execute(query)
             rows = cursor.fetchall()
 #            print(len(rows))
@@ -164,7 +164,7 @@ class DatasetMetadataManager:
             else:
                 for key, value in json_loader.items():
                     cursor = conn.cursor(cursor_factory=RealDictCursor)
-                    query = f"UPDATE corpus_metadata SET {key}='{value}' where corpus_name ='{corpus_name}'"
+                    query = f"UPDATE dataset_metadata SET {key}='{value}' where dataset_name ='{dataset_name}'"
                     cursor.execute(query)
                     conn.commit()
                 return 1
@@ -181,30 +181,30 @@ class DatasetMetadataManager:
     def update_dataset_remote(self,name,args1,args2,conn):
         cursor=conn.cursor()
         input_remote_tuple=(args2,args1,name)
-        cursor.execute("update corpus_metadata set git_remote = %s, remote_location = %s where corpus_name=%s",input_remote_tuple)
+        cursor.execute("update dataset_metadata set git_remote = %s, remote_location = %s where dataset_name=%s",input_remote_tuple)
         conn.commit()
       #  conn.close()
         cursor.close()
    
-    def dataset_custom_fields(self ,corpusname,kv_pairs, conn):
+    def dataset_custom_fields(self ,datasetname,kv_pairs, conn):
         cur = conn.cursor()
-        cur.execute("select corpus_id from corpus_metadata where corpus_name = %s",(corpusname,))
+        cur.execute("select dataset_id from dataset_metadata where dataset_name = %s",(datasetname,))
         rows = cur.fetchall()
         for i in rows:
             c = i[0]
         print(c)
         for key, value in kv_pairs.items():
-           cur.execute("insert into corpus_custom_fields(corpus_id, field_name, field_value) values (%s , %s , %s)",(c,key,value))
+           cur.execute("insert into dataset_custom_fields(dataset_id, field_name, field_value) values (%s , %s , %s)",(c,key,value))
            print(key,":",value,"\n")
            
         conn.commit()
         cur.close()
      #   conn.close()
 
-    def delete_dataset(self,corpusname,conn):
+    def delete_dataset(self,datasetname,conn):
         cur = conn.cursor(cursor_factory=RealDictCursor)
-        cur.execute("DELETE FROM corpus_metadata WHERE corpus_name = %s",(corpusname,))
-        print("Deleted corpus ",corpusname)
+        cur.execute("DELETE FROM dataset_metadata WHERE dataset_name = %s",(datasetname,))
+        print("Deleted dataset ",datasetname)
         conn.commit()
         cur.close()
       #  conn.close()
@@ -218,7 +218,7 @@ class DatasetMetadataManager:
 
         return resp
 
-    ################### CORPUS API #############################
+    ################### dataset API #############################
 
     def get_Counts(self, conn):
         try:
@@ -231,15 +231,15 @@ class DatasetMetadataManager:
         except Exception as e:
             print(e)
 
-    def list_dataset(self, language , corpus_type , source_type , conn):
+    def list_dataset(self, language , dataset_type , source_type , conn):
         try:
             lan = language 
-            cor_type = corpus_type
+            cor_type = dataset_type
             sor_type=source_type
 
             cursor = conn.cursor(cursor_factory=RealDictCursor)
             
-            query= f"SELECT corpus_id, corpus_name, corpus_type, language, source_type, migration_date , lastupdated_ts , description, acquisition_date, (SELECT teamname FROM cfg_udops_teams_metadata tm WHERE tm.team_id IN ( SELECT team_id FROM cfg_udops_teams_acl cta WHERE cta.corpus_id = corpus_metadata.corpus_id )) AS teamname FROM corpus_metadata WHERE language IN (SELECT * FROM unnest(%s)) and corpus_type IN (SELECT * FROM unnest(%s)) and source_type IN (SELECT * FROM unnest(%s))"
+            query= f"SELECT dataset_id, dataset_name, dataset_type, language, source_type, migration_date , lastupdated_ts , description, acquisition_date, (SELECT teamname FROM cfg_udops_teams_metadata tm WHERE tm.team_id IN ( SELECT team_id FROM cfg_udops_teams_acl cta WHERE cta.dataset_id = dataset_metadata.dataset_id )) AS teamname FROM dataset_metadata WHERE language IN (SELECT * FROM unnest(%s)) and dataset_type IN (SELECT * FROM unnest(%s)) and source_type IN (SELECT * FROM unnest(%s))"
             
             cursor.execute(query,(lan,cor_type,sor_type))
             rows = cursor.fetchall()
@@ -255,7 +255,7 @@ class DatasetMetadataManager:
     def language(self, conn):
         try:
             cursor = conn.cursor(cursor_factory=RealDictCursor)
-            cursor.execute( f"select DISTINCT language from corpus_metadata")
+            cursor.execute( f"select DISTINCT language from dataset_metadata")
             rows = cursor.fetchall()
             conn.commit()
             cursor.close()
@@ -266,7 +266,7 @@ class DatasetMetadataManager:
     def source_type(self, conn):
         try:
             cursor = conn.cursor(cursor_factory=RealDictCursor)
-            cursor.execute( f"select DISTINCT source_type from corpus_metadata")
+            cursor.execute( f"select DISTINCT source_type from dataset_metadata")
             rows = cursor.fetchall()
             conn.commit()
             cursor.close()
@@ -277,7 +277,7 @@ class DatasetMetadataManager:
     def dataset_type(self, conn):
         try:
             cursor = conn.cursor(cursor_factory=RealDictCursor)
-            cursor.execute( f"select DISTINCT corpus_type from corpus_metadata")
+            cursor.execute( f"select DISTINCT dataset_type from dataset_metadata")
             rows = cursor.fetchall()
             conn.commit()
             cursor.close()
@@ -285,20 +285,20 @@ class DatasetMetadataManager:
         except Exception as e:
             print(e)
 
-    def search_dataset(self, corpus_name, conn):
+    def search_dataset(self, dataset_name, conn):
         try:
-            if corpus_name=="":
+            if dataset_name=="":
                cursor = conn.cursor(cursor_factory=RealDictCursor)
-               cursor.execute("SELECT corpus_id, corpus_name, corpus_type, language, source_type, (SELECT teamname FROM cfg_udops_teams_metadata tm WHERE tm.team_id IN (SELECT team_id FROM cfg_udops_teams_acl cta WHERE cta.corpus_id = corpus_metadata.corpus_id ) ) AS team_name FROM corpus_metadata")
+               cursor.execute("SELECT dataset_id, dataset_name, dataset_type, language, source_type, (SELECT teamname FROM cfg_udops_teams_metadata tm WHERE tm.team_id IN (SELECT team_id FROM cfg_udops_teams_acl cta WHERE cta.dataset_id = dataset_metadata.dataset_id ) ) AS team_name FROM dataset_metadata")
                rows = cursor.fetchall()
                conn.commit()
                cursor.close()
                return rows
             else:
                 cursor = conn.cursor(cursor_factory=RealDictCursor)
-                query=f"SELECT corpus_id, corpus_name, corpus_type, language, source_type,(SELECT teamname FROM cfg_udops_teams_metadata tm WHERE tm.team_id IN (SELECT team_id FROM cfg_udops_teams_acl cta WHERE cta.corpus_id = corpus_metadata.corpus_id ) ) AS team_name FROM corpus_metadata WHERE corpus_name ILIKE '%{corpus_name}%'"
+                query=f"SELECT dataset_id, dataset_name, dataset_type, language, source_type,(SELECT teamname FROM cfg_udops_teams_metadata tm WHERE tm.team_id IN (SELECT team_id FROM cfg_udops_teams_acl cta WHERE cta.dataset_id = dataset_metadata.dataset_id ) ) AS team_name FROM dataset_metadata WHERE dataset_name ILIKE '%{dataset_name}%'"
 
-#                cursor.execute(f"SELECT corpus_id, corpus_name, corpus_type, language, source_type,migration_date, lastupdated_ts, description, acquisition_date, (SELECT teamname FROM cfg_udops_teams_metadata tm WHERE tm.team_id IN (SELECT team_id FROM cfg_udops_teams_acl cta WHERE cta.corpus_id = corpus_metadata.corpus_id ) ) AS team_name FROM corpus_metadata where corpus_nam ='{corpus_name}'")
+#                cursor.execute(f"SELECT dataset_id, dataset_name, dataset_type, language, source_type,migration_date, lastupdated_ts, description, acquisition_date, (SELECT teamname FROM cfg_udops_teams_metadata tm WHERE tm.team_id IN (SELECT team_id FROM cfg_udops_teams_acl cta WHERE cta.dataset_id = dataset_metadata.dataset_id ) ) AS team_name FROM dataset_metadata where dataset_nam ='{dataset_name}'")
                 cursor.execute(query)
                 rows = cursor.fetchall()
                 conn.commit()
@@ -314,19 +314,19 @@ class DatasetMetadataManager:
         try:
             cursor = conn.cursor(cursor_factory=RealDictCursor)
             col = column
-            query1 = f"select DISTINCT {col} from corpus_metadata"
-            # query = "select DISTINCT language from corpus_metadata"
+            query1 = f"select DISTINCT {col} from dataset_metadata"
+            # query = "select DISTINCT language from dataset_metadata"
             cursor.execute(query1)
             rows = cursor.fetchall()
             col_list = [dictionary[col] for dictionary in rows]
             dict = {}
-            # query = " SELECT COUNT(*) FROM corpus_metadata WHERE vendor = %s "
+            # query = " SELECT COUNT(*) FROM dataset_metadata WHERE vendor = %s "
             # print(query)
             for i in range(len(col_list)):
                 data = col_list[i]
-                query = f"SELECT COUNT(*) FROM corpus_metadata WHERE {col} = '{data}'"
+                query = f"SELECT COUNT(*) FROM dataset_metadata WHERE {col} = '{data}'"
                 cursor.execute(query)
-                # cursor.execute("SELECT COUNT(*) FROM corpus_metadata WHERE language =%s", (data,))
+                # cursor.execute("SELECT COUNT(*) FROM dataset_metadata WHERE language =%s", (data,))
                 result = cursor.fetchone()
                 count = result['count']
                 final_result = {data: count}
@@ -344,14 +344,14 @@ class DatasetMetadataManager:
         try:
             cursor = conn.cursor(cursor_factory=RealDictCursor)
             col = column
-            query1 = f"select DISTINCT {col} from corpus_metadata"
+            query1 = f"select DISTINCT {col} from dataset_metadata"
             cursor.execute(query1)
             rows = cursor.fetchall()
             col_list = [dictionary[col] for dictionary in rows]
             value = []
             for i in range(len(col_list)):
                 data = col_list[i]
-                query = f"SELECT COUNT(*) FROM corpus_metadata WHERE {col} = '{data}'"
+                query = f"SELECT COUNT(*) FROM dataset_metadata WHERE {col} = '{data}'"
                 cursor.execute(query)
                 result = cursor.fetchone()
                 count = result['count']
@@ -363,10 +363,10 @@ class DatasetMetadataManager:
         except Exception as e:
             return e
 
-    def summary_cutom(self, conn, corpus_name):
+    def summary_cutom(self, conn, dataset_name):
         try:
             cursor = conn.cursor(cursor_factory=RealDictCursor)
-            q = f"SELECT corpus_custom_fields.field_name, corpus_custom_fields.field_value FROM corpus_custom_fields JOIN corpus_metadata ON corpus_custom_fields.corpus_id= corpus_metadata.corpus_id WHERE corpus_metadata.corpus_name= '{corpus_name}'; "
+            q = f"SELECT dataset_custom_fields.field_name, dataset_custom_fields.field_value FROM dataset_custom_fields JOIN dataset_metadata ON dataset_custom_fields.dataset_id= dataset_metadata.dataset_id WHERE dataset_metadata.dataset_name= '{dataset_name}'; "
             cursor.execute(q)
             rows = cursor.fetchall()
             dictionary = {}
@@ -388,13 +388,13 @@ class DatasetMetadataManager:
                 cursor = conn.cursor(cursor_factory=RealDictCursor)
                 field_name = obj['field_name']
                 field_value = obj['field_value']
-                corpus_name = obj['corpus_name']
-                query = f"select corpus_id from corpus_metadata where corpus_name ='{corpus_name}';"
+                dataset_name = obj['dataset_name']
+                query = f"select dataset_id from dataset_metadata where dataset_name ='{dataset_name}';"
                 cursor.execute(query)
                 rows = cursor.fetchone()
-                c_id = rows['corpus_id']
-                query_1 = f"UPDATE corpus_custom_fields SET field_value = " \
-                          f"'{field_value}' where corpus_id = {c_id} AND field_name = '{field_name}';"
+                c_id = rows['dataset_id']
+                query_1 = f"UPDATE dataset_custom_fields SET field_value = " \
+                          f"'{field_value}' where dataset_id = {c_id} AND field_name = '{field_name}';"
                 cursor.execute(query_1)
                 conn.commit()
                 cursor.close()

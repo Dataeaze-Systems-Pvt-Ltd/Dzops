@@ -17,16 +17,16 @@ class AccessControl:
         else:
             return user.get_user_team(user_id)
 
-    def authorize_user_clone(self,user_id,corpus_id):
+    def authorize_user_clone(self,user_id,dataset_id):
         user = UserAuthenticationHandler()
-        if user.authorize_user_clone(user_id,corpus_id)==1:
+        if user.authorize_user_clone(user_id,dataset_id)==1:
             return 1
         else:
             return 2
         
-    def authorize_user(self,user_id,corpus_id,access_type):
+    def authorize_user(self,user_id,dataset_id,access_type):
         user = UserAuthenticationHandler()
-        if user.authorize_user(user_id,corpus_id,access_type)==1:
+        if user.authorize_user(user_id,dataset_id,access_type)==1:
             return 1
         else:
             return 2
@@ -42,13 +42,13 @@ class AccessControl:
     def partial_change(self,source_tenant,own_token):
         duplo.ChangeToken(tenant=source_tenant,token=own_token)
     
-    def corpus_id(self,corpus_name):
+    def dataset_id(self,dataset_name):
         user = UserAuthenticationHandler()
-        return user.corpus_id(corpus_name)
+        return user.dataset_id(dataset_name)
     
-    def default_access(self,corpus_id,user_id):
+    def default_access(self,dataset_id,user_id):
         user = UserAuthenticationHandler()
-        return user.default_acess(corpus_id,user_id)
+        return user.default_acess(dataset_id,user_id)
 
     def retrieve_change(self):
         dir_path = os.path.dirname(os.path.realpath(__file__))
@@ -64,9 +64,9 @@ class AccessControl:
         teamuser = teamusermanager()
         teamuser.team_authentication(username,teamname)
 
-    def Corpus_team_map(self,team_id , corpus_id):
+    def Dataset_team_map(self,team_id , dataset_id):
         user = UserAuthenticationHandler()
-        return user.Corpus_team_map(team_id,corpus_id)
+        return user.Dataset_team_map(team_id,dataset_id)
 
         
 

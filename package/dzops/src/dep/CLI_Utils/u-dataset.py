@@ -10,21 +10,21 @@ try:
     def listDatasetNames(filter_value: str = ""):
         typer.echo("load test")
         dataset_handler = DatasetHandler()
-        response = dataset_handler.list_corpus_names(filter_value)
+        response = dataset_handler.list_dataset_names(filter_value)
         for row in response:
             print("Result :", row)
 
 
     @app.command()
-    def getDatasetMetadata(corpus_id: str):  # take one argument
+    def getDatasetMetadata(dataset_id: str):  # take one argument
         dataset_handler = DatasetHandler()
-        dataset_handler.get_dataset_metadata(corpus_id)
+        dataset_handler.get_dataset_metadata(dataset_id)
 
 
     @app.command()
-    def getDatasetMetadatabytype(corpus_type: str):
+    def getDatasetMetadatabytype(dataset_type: str):
         dataset_handler = DatasetHandler()
-        row = dataset_handler.manager_get_metadata_type(corpus_type)
+        row = dataset_handler.manager_get_metadata_type(dataset_type)
         print(row)
         return row
         
@@ -74,16 +74,16 @@ try:
 
 
     @app.command()
-    def update_corpus(file: str):
+    def update_dataset(file: str):
         dataset_handler = DatasetHandler()
         dataset_properties = json.load(open(file, 'r', encoding='utf-8'))
-        str1 = dataset_handler.manager_update_corpus(dataset_properties)
+        str1 = dataset_handler.manager_update_dataset(dataset_properties)
 
     @app.command()
     # TODO : Small case underscores
-    def datareader(corpus_details_dict, schema_type : Optional[str] =typer.Argument("common"),custom_schema:Optional[str] =typer.Argument(None)):
+    def datareader(dataset_details_dict, schema_type : Optional[str] =typer.Argument("common"),custom_schema:Optional[str] =typer.Argument(None)):
         dataset_handler = DatasetHandler()
-        # Prepare corpus_details_dict
+        # Prepare dataset_details_dict
         # "template_file_path": "C:\\Users\\PrateekTiwari(c)\\Documents\\drive\\git\\data-ops\\poc\\librispeech\\asr\\template_timit.py",
         #  "data_dir_path": "C:\\\\Users\\\\PrateekTiwari(c)\\\\Documents\\\\drive\\data\\\\timit\\\\data",
         #  "common_schema": "C:\\Users\\PrateekTiwari(c)\\Documents\\drive\\git\\data-ops\\common_schema.json",
@@ -91,14 +91,14 @@ try:
         # Where will it come from?
         # template_file_path : <cwd>/.template/__<type>_data_reader.py
         # data_dir_path : <cwd>
-        # common_schema : Should be derived from corpus_type within ReaderManager
+        # common_schema : Should be derived from dataset_type within ReaderManager
         # native_schema ; <cwd>/.template/__native_schema.json
-        dataset_handler.datareader(corpus_details_dict, schema_type,custom_schema)
+        dataset_handler.datareader(dataset_details_dict, schema_type,custom_schema)
     
     @app.command()
-    def store_data(corpus_details_dict, output_loc, schema_type : Optional[str] =typer.Argument("common"), custom_schema:Optional[str] =typer.Argument(None) ):
+    def store_data(dataset_details_dict, output_loc, schema_type : Optional[str] =typer.Argument("common"), custom_schema:Optional[str] =typer.Argument(None) ):
         dataset_handler = DatasetHandler()
-        dataset_handler.store_data(corpus_details_dict,output_loc,schema_type,custom_schema)
+        dataset_handler.store_data(dataset_details_dict,output_loc,schema_type,custom_schema)
 
     @app.command()
     def register_reader(reader_template_fpath):

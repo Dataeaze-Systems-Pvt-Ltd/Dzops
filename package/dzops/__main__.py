@@ -32,7 +32,7 @@ try:
         Userlog.logout()
 
 
-    # Corpus commands
+    # dataset commands
 
     @app.command()
     def RDSConfig(host: str = typer.Option(..., "--host"),
@@ -43,8 +43,8 @@ try:
 
 
     @app.command()
-    def delete_dataset(corpusname):
-        udataset.delete_dataset(corpusname)
+    def delete_dataset(datasetname):
+        udataset.delete_dataset(datasetname)
 
 
     @app.command()
@@ -53,20 +53,20 @@ try:
 
 
     @app.command()
-    def getDatasetMetadata(corpus_id: str):  # take one argument
+    def getDatasetMetadata(dataset_id: str):  # take one argument
 
-        response = udataset.getDatasetMetadata(corpus_id)
+        response = udataset.getDatasetMetadata(dataset_id)
         print(response)
 
 
     @app.command()
-    def getDatasetMetadatabytype(corpus_type: str):
-        response = udataset.getDatasetMetadatabytype(corpus_type)
+    def getDatasetMetadatabytype(dataset_type: str):
+        response = udataset.getDatasetMetadatabytype(dataset_type)
 
 
     @app.command()
-    def create_dataset(corpus_name: str = typer.Option(..., "--corpus_name"),
-                       corpustype: str = typer.Option(..., "--corpus_type"),
+    def create_dataset(dataset_name: str = typer.Option(..., "--dataset_name"),
+                       datasettype: str = typer.Option(..., "--dataset_type"),
                        language: str = typer.Option(..., "--language"),
                        source: str = typer.Option(..., "--source_url"),
                        source_type: str = typer.Option(..., "--source_type"),
@@ -104,10 +104,10 @@ try:
 
             else:
                 if re.match("r'^s3://([\w.-]+)/(.+)$'", source) == True:
-                    if corpus_name == os.path.basename(os.getcwd()):
-                        corpus_details = {
-                            "corpus_name": corpus_name,
-                            "corpus_type": corpustype,
+                    if dataset_name == os.path.basename(os.getcwd()):
+                        dataset_details = {
+                            "dataset_name": dataset_name,
+                            "dataset_type": datasettype,
                             "language": language,
                             "source_type": source_type,
                             "vendor": vendor,
@@ -117,18 +117,18 @@ try:
                             "acquisition_date": acquisition_date,
                             "migration_date": migration_date
                         }
-                        udataset.init(corpus_details, source)
-                        corpus_id = authentication.corpus_id(corpus_name)
-                        authentication.default_access(corpus_id, user_id)
-                        authentication.Corpus_team_map(team_id, corpus_id)
+                        udataset.init(dataset_details, source)
+                        dataset_id = authentication.dataset_id(dataset_name)
+                        authentication.default_access(dataset_id, user_id)
+                        authentication.Dataset_team_map(team_id, dataset_id)
                         AccessControl().retrieve_change()
                     else:
-                        return "Corpus name and folder name should be same"
+                        return "dataset name and folder name should be same"
                 else:
-                    if corpus_name == os.path.basename(os.getcwd()):
-                        corpus_details = {
-                            "corpus_name": corpus_name,
-                            "corpus_type": corpustype,
+                    if dataset_name == os.path.basename(os.getcwd()):
+                        dataset_details = {
+                            "dataset_name": dataset_name,
+                            "dataset_type": datasettype,
                             "language": language,
                             "source_type": source_type,
                             "vendor": vendor,
@@ -139,20 +139,20 @@ try:
                             "migration_date": migration_date
                         }
 
-                        udataset.init(corpus_details, source)
-                        print("!!!!!!!!!!!!!!!")
-                        corpus_id = authentication.corpus_id(corpus_name)
-                        authentication.default_access(corpus_id, user_id)
-                        authentication.Corpus_team_map(team_id, corpus_id)
+                        udataset.init(dataset_details, source)
+                        
+                        dataset_id = authentication.dataset_id(dataset_name)
+                        authentication.default_access(dataset_id, user_id)
+                        authentication.Dataset_team_map(team_id, dataset_id)
                         AccessControl().retrieve_change()
                     else:
-                        return print("Corpus name and folder name should be same")
+                        return print("dataset name and folder name should be same")
         else:
             print(f"The file '{file_name}' does not exist in the current working directory.")
 
 
     @app.command()
-    def dataset_custom_fields(corpusname, data: List[str]):
+    def dataset_custom_fields(datasetname, data: List[str]):
         """
         Process multiple key-value pairs
         """
@@ -164,7 +164,7 @@ try:
             for pair in i.split():
                 key, value = pair.split('=')
                 kv_pairs[key] = value
-        udataset.dataset_custom_fields(corpusname, kv_pairs)
+        udataset.dataset_custom_fields(datasetname, kv_pairs)
 
 
     @app.command()
@@ -174,12 +174,12 @@ try:
             for pair in i.split():
                 key, value = pair.split('=')
                 kv_pairs[key] = value
-        udataset.corpus_custom_fields(datasetname, kv_pairs)
+        udataset.dataset_custom_fields(datasetname, kv_pairs)
 
 
     @app.command()
     def list_commits():
-        udataset.list_corpus()
+        udataset.list_dataset()
 
 
     @app.command()
@@ -203,7 +203,7 @@ try:
 
 
     @app.command()
-    def push(corpus_name):
+    def push(dataset_name):
         dir_path = os.path.dirname(os.path.realpath(__file__))
         file_name = os.path.join(dir_path, 'src/dep/config/udops_config')
 
@@ -213,7 +213,7 @@ try:
             return os.path.isfile(directory)
 
         authentication = AccessControl()
-        corpus_id = authentication.corpus_id(corpus_name)
+        dataset_id = authentication.dataset_id(dataset_name)
 
         file_exists = is_file_present(file_name)
 
@@ -225,7 +225,7 @@ try:
             user_id = authentication.authenticate(ACCESS_TOKEN)
             access_type = "write"
 
-            if authentication.authorize_user(user_id, corpus_id, access_type) == 1:
+            if authentication.authorize_user(user_id, dataset_id, access_type) == 1:
                 print("Valid user.....")
                 return udataset().push()
             else:
@@ -242,9 +242,9 @@ try:
 
     @app.command()
     def clone(git: str):
-        corpus_name = re.sub(r'^.*/(.*?)(\.git)?$', r'\1', git)
+        dataset_name = re.sub(r'^.*/(.*?)(\.git)?$', r'\1', git)
         authentication = AccessControl()
-        corpus_id = authentication.corpus_id(corpus_name)
+        dataset_id = authentication.dataset_id(dataset_name)
         dir_path = os.path.dirname(os.path.realpath(__file__))
         file_name = os.path.join(dir_path, 'src/dep/config/udops_config')
 
@@ -260,10 +260,10 @@ try:
             authentication = AccessControl()
             user_id = authentication.authenticate(ACCESS_TOKEN)
             # check the permission from cfg_udops_acl (read, write)
-            if authentication.authorize_user_clone(user_id, corpus_id) == 1:
+            if authentication.authorize_user_clone(user_id, dataset_id) == 1:
                 return udataset.clone(git)
             else:
-                print("No access for user to clone corpus")
+                print("No access for user to clone dataset")
         else:
             print(f"The file '{file_name}' does not exist in the current working directory.")
 
@@ -277,7 +277,7 @@ try:
 
 
     @app.command()
-    def pull(corpus_name, folder: Optional[str] = typer.Argument(None)):
+    def pull(dataset_name, folder: Optional[str] = typer.Argument(None)):
         dir_path = os.path.dirname(os.path.realpath(__file__))
         file_name = os.path.join(dir_path, 'src/dep/config/udops_config')
 
@@ -285,7 +285,7 @@ try:
             return os.path.isfile(file_name)
 
         authentication = AccessControl()
-        corpus_id = authentication.corpus_id(corpus_name)
+        dataset_id = authentication.dataset_id(dataset_name)
         file_exists = is_file_present(file_name)
 
         if file_exists:
@@ -295,7 +295,7 @@ try:
             authentication = AccessControl()
             user_id = authentication.authenticate(ACCESS_TOKEN)
             access_type = "write"
-            if authentication.authorize_user(user_id, corpus_id, access_type) == 1:
+            if authentication.authorize_user(user_id, dataset_id, access_type) == 1:
                 return udataset.pull(folder)
             else:
                 print("ACCESS DENY")
@@ -304,15 +304,15 @@ try:
 
 
     @app.command()
-    def datareader(corpus_details_dict, schema_type: Optional[str] = typer.Argument("common"),
+    def datareader(dataset_details_dict, schema_type: Optional[str] = typer.Argument("common"),
                    custom_schema: Optional[str] = typer.Argument(None)):
-        udataset.datareader(corpus_details_dict, schema_type, custom_schema)
+        udataset.datareader(dataset_details_dict, schema_type, custom_schema)
 
 
     @app.command()
-    def export_data(corpus_details_dict, output_loc, schema_type: Optional[str] = typer.Argument("common"),
+    def export_data(dataset_details_dict, output_loc, schema_type: Optional[str] = typer.Argument("common"),
                     custom_schema: Optional[str] = typer.Argument(None)):
-        udataset.store_data(corpus_details_dict, output_loc, schema_type, custom_schema)
+        udataset.store_data(dataset_details_dict, output_loc, schema_type, custom_schema)
 
 
     @app.command()

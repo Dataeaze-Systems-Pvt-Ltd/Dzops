@@ -50,31 +50,31 @@ class UserManagementHandler:
         except Exception as e:
             raise e
 
-    def grant_access_corpus(self, user_name,corpus_name,permission):
+    def grant_access_dataset(self, user_name,dataset_name,permission):
         try:
             user = UserManagementManager()
-            return user.grant_access_corpus(user_name,corpus_name,permission)
+            return user.grant_access_dataset(user_name,dataset_name,permission)
         except Exception as e:
             raise e
 
-    def remove_access_corpus(self, user_name,corpus_name,permission):
+    def remove_access_dataset(self, user_name,dataset_name,permission):
         try:
             user = UserManagementManager()
-            return user.remove_access_corpus(user_name,corpus_name,permission)
+            return user.remove_access_dataset(user_name,dataset_name,permission)
         except Exception as e:
             raise e
 
-    def access_corpus_list_write(self,corpus_name):
+    def access_dataset_list_write(self,dataset_name):
         try:
             user = UserManagementManager()
-            return user.access_corpus_list_write(conn,corpus_name)
+            return user.access_dataset_list_write(conn,dataset_name)
         except Exception as e:
             raise e
 
-    def access_corpus_list_read(self,corpus_name):
+    def access_dataset_list_read(self,dataset_name):
         try:
             user = UserManagementManager()
-            return user.access_corpus_list_read(conn,corpus_name)
+            return user.access_dataset_list_read(conn,dataset_name)
         except Exception as e:
             raise e
 

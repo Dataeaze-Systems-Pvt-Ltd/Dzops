@@ -27,25 +27,25 @@ class UserManagement:
         user = UserManagementHandler()
         return user.add_users_team(user_name, teamname)
 
-    def delete_user(self, corpus_name, teamname):
+    def delete_user(self, dataset_name, teamname):
         user = UserManagementHandler()
-        return user.delete_user(corpus_name, teamname)
+        return user.delete_user(dataset_name, teamname)
 
-    def grant_access_corpus(self, user_name, corpus_name, permission):
+    def grant_access_dataset(self, user_name, dataset_name, permission):
         user = UserManagementHandler()
-        return user.grant_access_corpus(user_name, corpus_name, permission)
+        return user.grant_access_dataset(user_name, dataset_name, permission)
 
-    def remove_access_corpus(self, user_name, corpus_name, permission):
+    def remove_access_dataset(self, user_name, dataset_name, permission):
         user = UserManagementHandler()
-        return user.remove_access_corpus(user_name, corpus_name, permission)
+        return user.remove_access_dataset(user_name, dataset_name, permission)
 
-    def access_corpus_list_write(self, corpus_name):
+    def access_dataset_list_write(self, dataset_name):
         user = UserManagementHandler()
-        return user.access_corpus_list_write(corpus_name)
+        return user.access_dataset_list_write(dataset_name)
 
-    def access_corpus_list_read(self, corpus_name):
+    def access_dataset_list_read(self, dataset_name):
         user = UserManagementHandler()
-        return user.access_corpus_list_read(corpus_name)
+        return user.access_dataset_list_read(dataset_name)
 
     def get_list_teams_read(self, user_name):
         user = UserManagementHandler()
