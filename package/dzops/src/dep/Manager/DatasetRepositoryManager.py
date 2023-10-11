@@ -68,13 +68,15 @@ class DatasetRepositoryManager:
         print(os.getcwd())
         s = Repo(os.getcwd())
         s.pull(remote="data",targets=file)
+        g = git.Repo(os.getcwd())  
+        g.remotes.origin.pull() 
         
-    def pull_dataset(self, args):
-        print("here")
-        s = Repo(os.getcwd())
-        s.fetch()
-        # s.checkout()
-        s.pull(remote="remote_store")
+    # def pull_dataset(self, args):
+    #     print("here")
+    #     s = Repo(os.getcwd())
+    #     s.fetch()
+    #     # s.checkout()
+    #     s.pull(remote="remote_store")
 
     def remote_dataset(self, name: str, args1: str, args2: str):
         s = Repo(os.getcwd())
