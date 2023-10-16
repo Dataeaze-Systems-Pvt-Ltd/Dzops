@@ -32,10 +32,12 @@ class DatasetRepositoryManager:
     def checkout(self, commitid):
         g = git.Repo(os.getcwd())
         g.git.checkout(commitid)
+        print("checkout successful")
 
     def list_commits(self):
         g = git.Git(os.getcwd())
         print(g.log('--reflog'))
+    
 
     def destroy(self):
         s = Repo(os.getcwd())
@@ -45,6 +47,7 @@ class DatasetRepositoryManager:
         g = git.Repo(os.getcwd())
         g.git.add('--all')
         g.git.commit('-m',message)
+        
     def remote(self,name:str, data: str, gita: str):
         s = Repo(os.getcwd())
         g = git.Repo(os.getcwd())

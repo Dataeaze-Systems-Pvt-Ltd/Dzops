@@ -63,7 +63,7 @@ class udataset:
         dataset_handler.clone_repo(args)
 
 
-    def commit(message: str):
+    def commit( message: str):
         dataset_handler = DatasetHandler()
         dataset_handler.commit_repo(message)
 
